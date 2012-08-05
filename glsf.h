@@ -90,13 +90,9 @@ static void       glsfString( const float[4], const float[4], const char* );
 static int32_t glsfLoadGlyph( GLSFfont* font, uint32_t codepoint, 
                               GLSFglyph* glyph )
 {
-    //printf("Loading glyph: %c... ", codepoint);
-    
     glyph->index = stbtt_FindGlyphIndex(&font->info, codepoint);
-    if(glyph->index == 0) {
-        //printf("FAIL\n");
+    if(glyph->index == 0) 
         return GL_FALSE;
-    }
     
     glyph->codepoint = codepoint;
     glyph->scale = stbtt_ScaleForPixelHeight(&font->info, font->size);
@@ -108,7 +104,6 @@ static int32_t glsfLoadGlyph( GLSFfont* font, uint32_t codepoint,
                             glyph->scale, &glyph->x0, &glyph->y0,
                             &glyph->x1, &glyph->y1);
     
-    //printf("SUCCESS\n");
     return GL_TRUE;
 }
 
@@ -118,22 +113,17 @@ static int32_t glsfLoadGlyph( GLSFfont* font, uint32_t codepoint,
 static int32_t glsfLoadBitmap( GLSFfont* font, GLSFglyph* glyph, 
                                GLSFbitmap* bitmap )
 {
-    //printf("Loading bitmap for: %c... ", glyph->codepoint);
-    
     bitmap->width = glyph->x1 - glyph->x0;
     bitmap->height = glyph->y1 - glyph->y0;
     bitmap->data = (uint8_t*)malloc(sizeof(uint8_t) * 
                       (bitmap->width * bitmap->height));
-    if(!bitmap->data) {
-        //printf("FAIL\n");
+    if(!bitmap->data) 
         return GL_FALSE;
-    }
     
     stbtt_MakeGlyphBitmap(&font->info, bitmap->data, bitmap->width, 
                           bitmap->height, bitmap->width, glyph->scale, 
                           glyph->scale, glyph->index);
 
-    //printf("SUCCESS\n");
     return GL_TRUE;
 }
 
@@ -155,7 +145,7 @@ static int32_t glsfLoadTexture( GLSFfont* font, GLSFglyph* glyphs,
 {
     // Find out required dimensions for texture.
     int32_t req_width = 0, req_height = 0;
-    size_t i;
+    uint32_t i;
     for(i = 0; i < num_glyphs; ++i) {
         int32_t width = glyphs[i].x1 - glyphs[i].x0;
         int32_t height = glyphs[i].y1 - glyphs[i].y0;
@@ -249,11 +239,13 @@ static int32_t glsfUpdateFont( GLSFfont* font, GLSFglyph* glyphs,
 
 /**
  * @fn glsfGetGlyph
+ * @brief Fetch a glyph by codepoint from font. Tries loading the glyph
+ *        and adding it if not found.
  */
 static GLSFglyph* glsfGetGlyph( GLSFfont* font, uint32_t codepoint )
 {
     // Fetch existing glyph in font.
-    size_t i;
+    uint32_t i;
     for(i = 0; i < font->num_glyphs; ++i)
         if(font->glyphs[i].codepoint == codepoint)
             return &font->glyphs[i];
@@ -319,7 +311,7 @@ static GLSFfont* glsfCreateFont( const char* filename, float size,
 
     // Preload some glyphs.
     uint32_t state, codepoint;
-    size_t i;
+    uint32_t i;
     for(state = UTF8_ACCEPT, i = 0; i < strlen(pre); ++i) {
         if(decutf8(&state, &codepoint, (uint8_t)pre[i]))
             continue;
@@ -348,6 +340,7 @@ static void glsfDestroyFont( GLSFfont* font )
 
 /**
  * @fn glsfEnqueueGlyph
+ * @brief Adds vertices for a glyph in font's vertex array.
  */
 static void glsfEnqueueGlyph( GLSFfont* font, GLSFglyph* glyph, float x, 
                               float y, const float color[4] )
@@ -413,12 +406,14 @@ static void glsfEnqueueGlyph( GLSFfont* font, GLSFglyph* glyph, float x,
 
 /**
  * @fn glsfEnqueueString
+ * @brief Prepare a string to be drawn for font by calling EnqueueGlyph
+ *        for each character.
  */
 static void glsfEnqueueString( GLSFfont* font, const float rect[4],
                                const float color[4], const char* string )
 {
     // Count number of glyphs in UTF-8 string.
-    size_t i, num_glyphs = 0;
+    uint32_t i, num_glyphs = 0;
     uint32_t state, codepoint;
     for(state = UTF8_ACCEPT, i = 0; i < strlen(string); ++i) {
         if(decutf8(&state, &codepoint, (uint8_t)string[i]))
@@ -480,9 +475,10 @@ static void glsfEnqueueString( GLSFfont* font, const float rect[4],
 }
 
 /**
- * @fn glsfRenderFont
+ * @fn glsfDrawFont
+ * @brief Draws a font's vertices after some calls to EnqueueString.
  */
-static void glsfRenderFont( GLSFfont* font )
+static void glsfDrawFont( GLSFfont* font )
 {
     // Backup some states.
     float modelview[16];
@@ -525,7 +521,7 @@ static void glsfRenderFont( GLSFfont* font )
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    // Flag vertices drawn.
+    // Mark vertices drawn.
     font->num_vertices = 0;
 }
 
@@ -536,7 +532,7 @@ static void glsfDrawString( GLSFfont* font, const float rect[4],
                             const float color[4], const char* string )
 {
     glsfEnqueueString(font, rect, color, string);
-    glsfRenderFont(font);
+    glsfDrawFont(font);
 }
 
 /**
@@ -552,7 +548,7 @@ static void glsfBegin( GLSFfont* font )
  */
 static void glsfEnd()
 {
-    glsfRenderFont(_glsf_font);
+    glsfDrawFont(_glsf_font);
     _glsf_font = NULL;
 }
 
