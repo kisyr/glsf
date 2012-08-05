@@ -163,7 +163,6 @@ static int32_t glsfLoadTexture( GLSFfont* font, GLSFglyph* glyphs,
     texture->height = req_height;
     
     // Create a blank texture.
-    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &texture->name);
     glBindTexture(GL_TEXTURE_2D, texture->name);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -489,8 +488,6 @@ static void glsfDrawFont( GLSFfont* font )
     float projection[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
     glGetFloatv(GL_PROJECTION_MATRIX, projection);
-    int program;
-    glGetIntegerv(GL_ACTIVE_PROGRAM, &program);
     
     // Set required states.
     glMatrixMode(GL_MODELVIEW);
@@ -521,7 +518,6 @@ static void glsfDrawFont( GLSFfont* font )
     glLoadMatrixf(modelview);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(projection);
-    glUseProgram(program);
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
