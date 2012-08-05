@@ -480,6 +480,10 @@ static void glsfEnqueueString( GLSFfont* font, const float rect[4],
  */
 static void glsfDrawFont( GLSFfont* font )
 {
+    // Enough vertices for anything to be drawn?
+    if(font->num_vertices < 6)
+        return;
+
     // Backup some states.
     float modelview[16];
     float projection[16];
