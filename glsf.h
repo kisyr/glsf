@@ -522,6 +522,9 @@ static void glsfRenderFont( GLSFfont* font )
     font->num_vertices = 0;
 }
 
+/**
+ * @fn glsfDrawString
+ */
 static void glsfDrawString( GLSFfont* font, const float rect[4], 
                             const float color[4], const char* string )
 {
