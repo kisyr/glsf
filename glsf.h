@@ -312,30 +312,30 @@ static GLSFfont* glsfCreateFont( const char* filename, float size,
     new_font->max_vertices = 128;
 
     // Preload some glyphs.
-    GLSFglyph* new_glyphs = (GLSFglyph*)malloc(sizeof(GLSFglyph) * strlen(pre));
-    uint32_t num_new_glyphs = 0;
-    uint32_t state, codepoint;
-    uint32_t i, j;
-    for(state = UTF8_ACCEPT, i = 0; i < strlen(pre); ++i) {
-        if(decutf8(&state, &codepoint, (uint8_t)pre[i]))
-            continue;
-        
-        // Skip duplicates.
-        int32_t duplicate = GL_FALSE;
-        for(j = 0; j < i; ++j) {
-            if(codepoint == new_glyphs[j].codepoint) {
-                duplicate = GL_TRUE;
-                break;
+    if(strlen(pre) > 0) {
+        GLSFglyph* new_glyphs = (GLSFglyph*)malloc(sizeof(GLSFglyph) * strlen(pre));
+        uint32_t num_new_glyphs = 0;
+        uint32_t state, codepoint;
+        uint32_t i, j;
+        for(state = UTF8_ACCEPT, i = 0; i < strlen(pre); ++i) {
+            if(decutf8(&state, &codepoint, (uint8_t)pre[i]))
+                continue;
+            // Skip duplicates.
+            int32_t duplicate = GL_FALSE;
+            for(j = 0; j < i; ++j) {
+                if(codepoint == new_glyphs[j].codepoint) {
+                    duplicate = GL_TRUE;
+                    break;
+                }
+            }
+            if(duplicate == GL_FALSE && 
+               glsfLoadGlyph(new_font, codepoint, &new_glyphs[num_new_glyphs]) == GL_TRUE) {
+                num_new_glyphs++;
             }
         }
-        
-        if(duplicate == GL_FALSE && 
-           glsfLoadGlyph(new_font, codepoint, &new_glyphs[num_new_glyphs]) == GL_TRUE) {
-            num_new_glyphs++;
-        }
+        glsfUpdateFont(new_font, new_glyphs, num_new_glyphs);
+        free(new_glyphs);
     }
-    glsfUpdateFont(new_font, new_glyphs, num_new_glyphs);
-    free(new_glyphs);
     
     return new_font;
 }
