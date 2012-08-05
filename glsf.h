@@ -26,6 +26,7 @@
 
 #include <GL/gl.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
@@ -67,6 +68,8 @@ typedef struct {
     GLSFtexture    texture;
 } GLSFfont;
 
+static GLSFfont* _glsf_font = NULL;
+
 static GLSFfont*  glsfCreateFont( const char*, float, const char* );
 static void       glsfDestroyFont( GLSFfont* );
 static int32_t    glsfLoadGlyph( GLSFfont*, uint32_t, GLSFglyph* );
@@ -76,6 +79,10 @@ static int32_t    glsfLoadTexture( GLSFfont*, GLSFglyph*, size_t, GLSFtexture* )
 static void       glsfFreeTexture( GLSFtexture* );
 static int32_t    glsfUpdateFont( GLSFfont*, GLSFglyph*, size_t );
 static GLSFglyph* glsfGetGlyph( GLSFfont*, uint32_t );
+static void       glsfDrawString( GLSFfont*, const float[4], const float[4], const char* );
+static void       glsfBegin( GLSFfont* );
+static void       glsfEnd();
+static void       glsfString( const float[4], const float[4], const char* );
 
 /**
  * @fn glsfLoadGlyph
@@ -530,6 +537,32 @@ static void glsfDrawString( GLSFfont* font, const float rect[4],
 {
     glsfEnqueueString(font, rect, color, string);
     glsfRenderFont(font);
+}
+
+/**
+ * @fn glsfBegin
+ */
+static void glsfBegin( GLSFfont* font )
+{
+    _glsf_font = font;
+}
+
+/**
+ * @fn glsfEnd
+ */
+static void glsfEnd()
+{
+    glsfRenderFont(_glsf_font);
+    _glsf_font = NULL;
+}
+
+/**
+ * @fn glsfString
+ */
+static void glsfString( const float rect[4], const float color[4],
+                        const char* string )
+{
+    glsfEnqueueString(_glsf_font, rect, color, string);
 }
 
 #endif
