@@ -208,13 +208,16 @@ static void glsfFreeTexture( GLSFtexture* texture )
 static int32_t glsfUpdateFont( GLSFfont* font, GLSFglyph* glyphs, 
                                size_t num_glyphs )
 {
+    if(num_glyphs == 0)
+        return GL_FALSE;
+    
     // Allocate new memory for concatenated glyphs.
     size_t num_new_glyphs = font->num_glyphs + num_glyphs;
     GLSFglyph* new_glyphs = (GLSFglyph*)malloc(sizeof(GLSFglyph) * num_new_glyphs);
     if(new_glyphs == NULL) 
         return GL_FALSE;
     
-    // Copy in old and new glyphs.
+    // Copy old glyphs.
     if(font->num_glyphs > 0)
         memcpy(new_glyphs, font->glyphs, sizeof(GLSFglyph) * font->num_glyphs);
     memcpy(new_glyphs + font->num_glyphs, glyphs, sizeof(GLSFglyph) * num_glyphs);
@@ -309,13 +312,30 @@ static GLSFfont* glsfCreateFont( const char* filename, float size,
     new_font->max_vertices = 128;
 
     // Preload some glyphs.
+    GLSFglyph* new_glyphs = (GLSFglyph*)malloc(sizeof(GLSFglyph) * strlen(pre));
+    uint32_t num_new_glyphs = 0;
     uint32_t state, codepoint;
-    uint32_t i;
+    uint32_t i, j;
     for(state = UTF8_ACCEPT, i = 0; i < strlen(pre); ++i) {
         if(decutf8(&state, &codepoint, (uint8_t)pre[i]))
             continue;
-        glsfGetGlyph(new_font, codepoint);
+        
+        // Skip duplicates.
+        int32_t duplicate = GL_FALSE;
+        for(j = 0; j < i; ++j) {
+            if(codepoint == new_glyphs[j].codepoint) {
+                duplicate = GL_TRUE;
+                break;
+            }
+        }
+        
+        if(duplicate == GL_FALSE && 
+           glsfLoadGlyph(new_font, codepoint, &new_glyphs[num_new_glyphs]) == GL_TRUE) {
+            num_new_glyphs++;
+        }
     }
+    glsfUpdateFont(new_font, new_glyphs, num_new_glyphs);
+    free(new_glyphs);
     
     return new_font;
 }
