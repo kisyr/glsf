@@ -8,7 +8,7 @@
 namespace glsf {
 
 /**
- * @class Rect
+ * @struct Rect
  */
 struct Rect
 {
@@ -22,7 +22,7 @@ struct Rect
 };
 
 /**
- * @class Color
+ * @struct Color
  */
 struct Color
 {
@@ -36,7 +36,7 @@ struct Color
 };
 
 /**
- * @class String
+ * @struct String
  */
 struct String
 {
