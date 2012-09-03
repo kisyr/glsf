@@ -1,1 +1,3 @@
-OpenGL Simple Fonts
+Simple Fonts for OpenGL
+
+A simple header only lib with truetype and utf-8 support.

@@ -70,11 +70,12 @@ public:
     void draw( const std::vector<String>& strings__ )
     {
         glsfBegin(font_);
-        for( int i = 0; i < strings__.size(); ++i )
+        for( int i = 0; i < strings__.size(); ++i ) {
             glsfString( 
                 (float*)&strings__[i].rect,
                 (float*)&strings__[i].color,
                 strings__[i].string.c_str() );
+        }
         glsfEnd();
     }
     
