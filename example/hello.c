@@ -1,4 +1,4 @@
-﻿#include <GL/glfw.h>
+#include <GL/glfw.h>
 #include "../glsf.h"
 
 #define PRELOAD "1234567890 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
